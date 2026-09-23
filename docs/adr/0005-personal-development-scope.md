@@ -8,7 +8,7 @@
 
 1. **双轨而非篡改原计划。** 保留设计规格与实施计划 Task 0–14 的多租户、PG canonical + outbox、Kafka、Redis、Elasticsearch、Qdrant 作为未来生产轨道。个人阶段允许在本地/CI 使用合成数据先实现、测试、提交增量代码；这是使用者要求的开发例外，**不宣称**实施计划 §6.4/§23.2 的生产 Task 0 退出、G9 批准或正式 Task 1/2 验收。对外发布、多租户真实数据与生产部署仍须关闭原门禁。
 2. **公开仓库只存源码与已检查的文档。** GitHub owner/repo 为 `AaYang0312/memX`；个人阶段 Go module path 选 `github.com/AaYang0312/memX`（大小写与 GitHub URL 一致，未来变更需同步重写 import）。公开仓库不存放真实记忆、数据库 dump、密钥、token、`.env`、模型请求/响应正文、含个人身份的测试数据；提交前做路径和敏感数据扫描。原计划的「私有 GitHub」基线对**个人源码仓库**由使用者明确改为公开；若接入真实个人记忆，仓库公开不等于数据公开。
-3. **CI 权限最小化。** 若创建 GitHub Actions，只用 `permissions: contents: read` 的测试工作流；不配置生产 secret，不提供写权限或部署能力；第三方 Action 采用经核验的固定版本/commit。GitHub Actions 不执行未经冻结的评测数值通过判定。当前 CI 工作流仍需单独实现/验证，不因本 ADR 自动存在。
+3. **CI 权限最小化。** 个人开发轨道使用 `.github/workflows/go-check.yml`：`permissions: contents: read`、不持久化 checkout 凭据、不配置生产 secret、不提供写权限或部署能力；官方 Action 固定到经核验的 commit。CI 仅做格式、Go 单元测试与 vet，不执行未经冻结的 G9 评测数值通过判定；工作流运行结果仍须在 GitHub 上核验，不因本 ADR 自动通过。
 4. **保留不可省略的安全不变量。** PostgreSQL 唯一事实源、同事务 outbox、跨主体/租户隔离、模型输出只形成 pending proposal、G5 白名单为空时不得确认、删除 fence 防复活、投影写前/写后检查、日志/仓库禁秘密均继续有效。未完成 G4 身份/授权前不开放业务 API；仅监听 loopback 的 health-only 开发入口不是业务 API。允许个人开发不等于允许无认证的公开服务。
 5. **外部模型是意向，不是立即外发许可。** 在使用真实个人文本前，须由使用者进一步指定 provider/model、处理区域、发送的数据类型及脱敏范围、隐私/训练条款、成本/密钥存放方式；未决定前代码只能用确定性合成输入/本地 stub，不配置真实 provider key、不发送真实个人数据。中高敏文本、一次性敏感值与 secret 默认禁外发。模型提取即使经批准也只能产生 proposal。
 6. **依赖与服务端许可不因个人用途自动消失。** 引入 Go 依赖、下载/使用 PG/Kafka/Redis/ES/Qdrant 镜像时仍核验版本兼容与相应许可；ADR 0004 §9 是候选而非批准。个人阶段可先用 Go 标准库开发纯内存契约/health 路径，外部系统联调须按实际版本与使用条款单列记录。特别是 Redis、Elasticsearch、Redpanda 的服务端许可不能由客户端许可推定。

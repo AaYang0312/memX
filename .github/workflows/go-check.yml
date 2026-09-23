@@ -1,0 +1,39 @@
+name: Go checks (personal development)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Public source-only repo: no production secrets or write-capable token.
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GOPROXY: "off" # standard-library-only personal development track
+      GOSUMDB: "off"
+      GOTOOLCHAIN: "local"
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4 commit, checked 2026-09-23
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5 commit, checked 2026-09-23
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Check formatting
+        shell: bash
+        run: |
+          unformatted="$(gofmt -l ./cmd ./internal)"
+          if [ -n "$unformatted" ]; then
+            printf 'Unformatted Go files:\n%s\n' "$unformatted"
+            exit 1
+          fi
+      - name: Run tests
+        run: go test ./...
+      - name: Run vet
+        run: go vet ./...
