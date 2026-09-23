@@ -2,7 +2,7 @@
 
 独立、可部署、可重放、可审计的多租户 AI 记忆服务。
 
-**当前状态：** 本地 Git 仓库已初始化；Task 0 架构文档为 Proposed 草案。`spike/local-bootstrap` 分支另有仅供本地合成验证的标准库 Go 健康检查原型（`memx.local/memx` 为临时路径，并非批准的 G1 module path）；尚无外部依赖、基础设施或远端仓库。G1/G2/G3/G9 均未获所需 owner 批准；原型不代表 Task 1 启动或验收。
+**当前状态：** 本地 Git 仓库已初始化；Task 0 架构文档为 Proposed 草案。`spike/local-bootstrap` 分支另有仅供本地合成验证的标准库 Go 健康检查与纯领域检查原型（`memx.local/memx` 为临时路径，并非批准的 G1 module path）；尚无外部依赖、基础设施或远端仓库。G1/G2/G3/G9 均未获所需 owner 批准；原型不代表 Task 1 启动或验收。
 
 ## 文档
 
