@@ -1,0 +1,22 @@
+# Local agent and editor state
+.pi/
+.idea/
+.vscode/
+
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+*.local
+
+# Go build/test output
+/bin/
+/dist/
+/coverage/
+*.test
+*.out
+coverage.txt
+
+# Operating-system files
+.DS_Store
+Thumbs.db
