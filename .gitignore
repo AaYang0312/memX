@@ -8,6 +8,15 @@
 .env.*
 !.env.example
 *.local
+*.pem
+*.key
+*.p12
+*.db
+*.sqlite*
+*.dump
+*.log
+/data/
+/local-data/
 
 # Go build/test output
 /bin/

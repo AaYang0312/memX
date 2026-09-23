@@ -2,7 +2,7 @@
 
 独立、可部署、可重放、可审计的多租户 AI 记忆服务。
 
-**当前状态：** 本地 Git 仓库已初始化；Task 0 架构文档为 Proposed 草案。`spike/local-bootstrap` 分支另有仅供本地合成验证的标准库 Go 健康检查与纯领域检查原型（`memx.local/memx` 为临时路径，并非批准的 G1 module path）；尚无外部依赖、基础设施或远端仓库。G1/G2/G3/G9 均未获所需 owner 批准；原型不代表 Task 1 启动或验收。
+**当前状态：** 已关联使用者提供的公开 GitHub 仓库 `AaYang0312/memX`；个人开发轨道的 Go module path 为 `github.com/AaYang0312/memX`。`main` 中的标准库 Go 代码仍只有本地合成健康检查与纯领域预检查，尚无外部依赖、真实数据、基础设施或业务 API。Task 0 架构文档仍为 Proposed，原生产规格仍为 Draft；个人开发范围例外见 [ADR 0005](docs/adr/0005-personal-development-scope.md)，不代表生产 Task 1/2 门禁已通过。
 
 ## 文档
 
@@ -10,7 +10,7 @@
 |---|---|
 | [设计规格](docs/specs/2026-09-20-production-memory-service-design.md) | 记忆分层、契约、一致性、安全与 SLO |
 | [实施计划](docs/plans/2026-09-20-production-memory-service-implementation.md) | Task 0–14、门禁、测试命令与完成定义 |
-| [ADR 草案](docs/adr/) | canonical/事件、检索投影、事实确认与 Go 技术栈 |
+| [ADR 草案与个人阶段决定](docs/adr/) | 生产基线、Go 技术栈、公开仓库与个人开发范围例外 |
 | [威胁模型](docs/threat-model.md) | 资产、边界、威胁及待实施控制 |
 | [容量基线](docs/capacity-baseline.md) | 试点假设与可复算容量推导 |
 | [数据分类](docs/data-classification.md) | 存储、外发与保留边界 |
@@ -40,8 +40,8 @@ Go            API 服务、outbox relay、worker
 
 ## 下一步
 
-先按实施计划 §6.4 / §23.2 完成 Task 0 的 owner 审批：G1（GitHub owner/module path 与 CI 权限）、G2（精确版本与许可证）、G3（区域/KMS）及 G9（四方批准的评测数字）未关闭前不创建 `go.mod`、远端 workflow，不引入依赖、不拉取镜像，也不启动 Task 1。身份契约等后续决策仍按 §23.2 的阶段门禁关闭。业务 API 上线前须完成身份授权；任何检索投影开放前须具备删除防复活能力。
+个人阶段按 ADR 0005 可用合成数据继续本地开发，不将试验结果当作生产验收；公开仓库只放源码/文档，不放记忆数据或密钥。原计划 §6.4 / §23.2 的生产审批仍待关闭，尤其 G2 版本/许可与 G9 评测数字。真实个人文本调用外部模型前还须明确 provider、外发范围与隐私条款。业务 API 上线前须完成身份授权；任何检索投影开放前须具备删除防复活能力。
 
 ## 目录规划
 
-正式源码、部署与测试目录结构见实施计划 §3，须在批准后按 Task 1 建立。当前仅有隔离分支的 health-only 原型；详情见 [本地原型说明](docs/spikes/2026-09-23-local-bootstrap.md)。
+目标源码、部署与测试目录结构见实施计划 §3；当前 `main` 仅集成个人开发用的 health-only 入口与纯领域预检查，并非完整服务。详情见 [本地原型说明](docs/spikes/2026-09-23-local-bootstrap.md)。

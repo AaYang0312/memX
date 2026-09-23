@@ -1,8 +1,8 @@
 # 本地合成健康检查与纯领域检查原型（非 Task 1/2 交付）
 
-- **分支**：`spike/local-bootstrap`，不并入 `main`，除非 Task 0 §6.4 的 owner 门禁关闭并完成复审。
-- **状态**：实验性、仅回环地址、只用 Go 标准库；`go.mod` 的 `memx.local/memx` 是本分支临时导入路径，**不是 G1 批准的 Go module path**；Go 版本只匹配本机开发环境，不是 G2 版本冻结。
-- **边界**：不创建远端 workflow、不拉镜像、不接真实 PostgreSQL/凭据/主体数据、不开放业务 API、不部署生产、不构造 MemoryPack。G1/G2/G3/G4/G5/G9 均未获批准；实施计划 §6.4、§23.2 以及 ADR 0004 §12 对正式 Task 1/2 的约束不变。
+- **历史**：初建于 `spike/local-bootstrap`，按 [ADR 0005](../adr/0005-personal-development-scope.md) 的个人开发范围决定并入 `main`；不代表生产 Task 1/2 验收。
+- **状态**：实验性、仅回环地址、只用 Go 标准库；`go.mod` 现为使用者提供的 GitHub 路径 `github.com/AaYang0312/memX`。Go 版本只匹配本机开发环境，不是生产 G2 版本冻结。
+- **边界**：不拉镜像、不接真实 PostgreSQL/凭据/主体数据、不开放业务 API、不部署生产、不构造 MemoryPack。个人开发范围可推进源码，G2/G3/G4/G5/G9 的生产审批仍未完成；实施计划 §6.4、§23.2 的生产验收约束不变。
 
 ## 可运行行为
 
@@ -25,4 +25,4 @@ go run ./cmd/memx-api
 #          curl.exe http://127.0.0.1:18081/readyz  # 503
 ```
 
-`go test ./...`、`go vet ./...` 与 `go build ./cmd/memx-api` 为原型检查。**不得**用此原型替代计划 Task 1/2 的依赖健康探针、身份/授权/契约、Compose/CI、版本及许可冻结、评测批准或生产验收；进入正式模块前须删除/替换临时 module path 并经 owner 决策。
+`go test ./...`、`go vet ./...` 与 `go build ./cmd/memx-api` 为原型检查。**不得**用此原型替代计划 Task 1/2 的依赖健康探针、身份/授权/契约、Compose/CI、版本及许可冻结、评测批准或生产验收；正式部署前须完成相应 owner 决策。

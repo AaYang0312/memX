@@ -1,5 +1,5 @@
-// memx-api on this branch is a loopback-only health prototype, NOT the Task 1
-// service. It has no canonical storage, authentication or business endpoints.
+// memx-api in personal-development mode is a loopback-only health prototype,
+// NOT the production Task 1 service. It has no storage, auth or business API.
 package main
 
 import (
@@ -13,9 +13,9 @@ import (
 	"syscall"
 	"time"
 
-	"memx.local/memx/internal/app"
-	"memx.local/memx/internal/config"
-	"memx.local/memx/internal/health"
+	"github.com/AaYang0312/memX/internal/app"
+	"github.com/AaYang0312/memX/internal/config"
+	"github.com/AaYang0312/memX/internal/health"
 )
 
 type unavailableProbe struct{}
