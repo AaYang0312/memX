@@ -18,10 +18,10 @@ jobs:
       GOSUMDB: "off"
       GOTOOLCHAIN: "local"
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4 commit, checked 2026-09-23
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5 commit (Node 24), checked 2026-09-23
         with:
           persist-credentials: false
-      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5 commit, checked 2026-09-23
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6 commit (Node 24), checked 2026-09-23
         with:
           go-version-file: go.mod
           cache: false
