@@ -2,7 +2,7 @@
 
 - **历史**：初建于 `spike/local-bootstrap`，按 [ADR 0005](../adr/0005-personal-development-scope.md) 的个人开发范围决定并入 `main`；不代表生产 Task 1/2 验收。
 - **状态**：实验性、仅回环地址、只用 Go 标准库；`go.mod` 现为使用者提供的 GitHub 路径 `github.com/AaYang0312/memX`。Go 版本只匹配本机开发环境，不是生产 G2 版本冻结。
-- **边界**：不拉镜像、不接真实 PostgreSQL/凭据/主体数据、不开放业务 API、不部署生产、不构造 MemoryPack。个人开发范围可推进源码，G2/G3/G4/G5/G9 的生产审批仍未完成；实施计划 §6.4、§23.2 的生产验收约束不变。
+- **边界**：不拉镜像、不接真实 PostgreSQL/凭据/主体数据、不开放业务 API、不部署生产、不构造 MemoryPack。个人开发范围可推进源码，G2/G3/G4/G5/G6/G9 与 G-M 的生产审批仍未完成；实施计划 §6.4、§23.2 的生产验收约束不变。
 
 ## 可运行行为
 
@@ -12,6 +12,7 @@
 - `internal/domain/ref` 只生成/解析随机 opaque ref；不同 ref 类型不能混用，原始邮箱/电话和 zero ref 被拒绝。JSON 传输形状未冻结，故刻意拒绝序列化。
 - `internal/domain/fact` 仅校验 pending proposal 的 reject/expire 和已确认 fact 的终态迁移；**confirmed proposal 一律返回待批准错误**，无 confirmed fact 创建入口。检查不执行授权、TTL scheduler、PG CAS、audit/outbox 或删除 fence；`pending_conflict` 仅为 reason code，fact 到期使用 `revoked(reason_code=expired)`。
 - `internal/domain/projection` 的 epoch/seq/revision/content hash 预检查只用于本地纯函数试验，`Eligible` **不等于可写投影的许可**：还须 PG canonical/fence 复核、inbox pending lease、外部条件写、写后补偿与持久回执。当前无任何投影存储或消费者。
+- `internal/policy` 只做离线纯前置检查：信任八级顺序（设计规格 §6.2）的有界成对比较——未知值 fail-closed、同级冲突不静默裁决、模型 proposal 永不胜出且禁入 MemoryPack，系统策略/授权也在 MemoryPack 外执行；任何来源的未确认 proposal 仍须通过独立 canonical 状态检查排除；敏感度低/中/高与 PII/secret/一次性标记正交，未知枚举一律拒绝，且在 G5/G6/G-M 未决期间"仅凭分类放行外发或索引"恒为拒绝（设计规格 §17.2、[数据分类](../data-classification.md) §2）。这是必要非充分的检查，不是 Task 2 契约：不签发身份（G4）、不设任何 namespace→sensitivity 映射（G5）、不批准任何外发或语义路径（G6/G-M）、不构造 MemoryPack、不确认事实、不执行任何授权或外发。
 
 仅用 **虚构值** 运行（PowerShell 示例，不要粘贴真实凭据）：
 
