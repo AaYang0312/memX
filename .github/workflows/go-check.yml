@@ -28,7 +28,7 @@ jobs:
       - name: Check formatting
         shell: bash
         run: |
-          unformatted="$(gofmt -l ./cmd ./internal)"
+          unformatted="$(gofmt -l ./cmd ./internal ./deploy)"
           if [ -n "$unformatted" ]; then
             printf 'Unformatted Go files:\n%s\n' "$unformatted"
             exit 1

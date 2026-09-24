@@ -1,0 +1,117 @@
+# Personal-development only: synthetic data, opt-in profiles, no production credentials.
+# Images are pinned to multi-platform manifest digests recorded in ADR 0006
+# (docs/adr/0006-personal-local-toolchain-and-images.md); every service sits in
+# an explicit profile, so a bare `docker compose up` starts nothing.
+# Static validation only (never pulls or starts images):
+#   docker compose --profile core --profile search --profile vector \
+#     -f deploy/compose/docker-compose.yml config --quiet
+name: memx-local
+
+services:
+  postgres:
+    profiles: [core]
+    image: postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650
+    platform: linux/amd64
+    environment:
+      POSTGRES_USER: memx_test
+      POSTGRES_DB: memx_test
+      POSTGRES_PASSWORD: ${MEMX_LOCAL_PG_PASSWORD:?Set a synthetic local-only PG password}
+    ports:
+      - "127.0.0.1:15432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql # PostgreSQL 18 uses a versioned PGDATA underneath
+    networks: [memx]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U memx_test -d memx_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  kafka:
+    profiles: [core]
+    image: apache/kafka:4.3.1@sha256:77e3df9054047a88b520d0cc46e16696d3b22022e1d580aeccd2632df6532837
+    platform: linux/amd64
+    environment:
+      CLUSTER_ID: "5L6g3nShT-eMCtK--X86sw" # fixed synthetic KRaft id; not a credential
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafkadata:/var/lib/kafka/data
+    networks: [memx]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1"]
+      interval: 20s
+      timeout: 10s
+      retries: 8
+      start_period: 60s
+
+  redis:
+    profiles: [core]
+    image: redis:8.10.1@sha256:8a1efc5f479551822b47424ccae982026b633f28818eab0387348120a61e10e2
+    platform: linux/amd64
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    networks: [memx]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  elasticsearch:
+    profiles: [search]
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.21@sha256:cbf5cd6cfe5532a9c02d510c66d238bf329cd51fe3d57170a2a880aca7d47419
+    platform: linux/amd64
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false" # synthetic isolated dev network ONLY
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks: [memx]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health >/dev/null"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
+
+  qdrant:
+    profiles: [vector]
+    image: qdrant/qdrant:v1.19.0@sha256:057ee3a8da769fe7310dd3537b4dc7583bf87a95ce8ac43c0af5a46bc580d1fc
+    platform: linux/amd64
+    volumes:
+      - qdrantdata:/qdrant/storage
+    networks: [memx]
+    healthcheck:
+      # Official minimal image has no curl/wget; TCP liveness only until Task 10
+      # adds a verified HTTP/gRPC readiness probe. Runtime smoke test pending.
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/6333'"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  memx:
+    driver: bridge
+
+volumes:
+  pgdata:
+  kafkadata:
+  redisdata:
+  esdata:
+  qdrantdata:

@@ -45,3 +45,12 @@ Go            API 服务、outbox relay、worker
 ## 目录规划
 
 目标源码、部署与测试目录结构见实施计划 §3；当前 `main` 仅集成个人开发用的 health-only 入口与纯领域预检查，并非完整服务。详情见 [本地原型说明](docs/spikes/2026-09-23-local-bootstrap.md)。
+
+## 本地静态检查（个人版 Task 1）
+
+当前工程骨架只包含 health-only 入口、纯领域预检查与一份从不启动的 Compose 静态配置。
+
+- `make check`（需要 make、Go、docker compose 的环境）依次执行：`gofmt` 格式检查（含 `./deploy`）、`go test ./...`、`go vet ./...`、`docker compose config --quiet`（注入合成口令并启用全部 profile；只解析文件，不拉取、不启动）。
+- 没有 make 时可逐条运行上述命令；`deploy/compose` 下的 Compose 静态守卫测试（`go test ./...` 的一部分，仅用标准库）不依赖 docker，在无 docker 的只读 CI 中同样生效。
+- Compose 的五个依赖（PostgreSQL、Kafka、Redis、Elasticsearch、Qdrant）全部位于显式 profile（`core`/`search`/`vector`），裸 `docker compose up` 不启动任何服务；镜像按 [ADR 0006](docs/adr/0006-personal-local-toolchain-and-images.md) 固定 tag+digest；端口只绑定 loopback；PG 口令必须经 `MEMX_LOCAL_PG_PASSWORD` 提供，无默认生产凭据。
+- `golangci-lint` 尚未固定可核验版本，未纳入 `check`，在其锁定前不得宣称已通过（实施计划 §7.7）。
